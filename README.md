@@ -7,10 +7,13 @@
    ```bash
    docker compose build
    ```
-3. Start the stack with hot reloads:
+3. Start the stack with hot reloads (prints your LAN URL for other devices):
    ```bash
-   docker compose up
+   ./scripts/compose-up.sh
+   # or run: docker compose up
    ```
+
+When using the helper script, you'll see LAN-friendly URLs such as `http://192.168.x.x:3000` and `http://192.168.x.x:8000` so phones/tablets on the same network can hit the app.
 
 Services:
 - Frontend (Next.js): http://localhost:3000
