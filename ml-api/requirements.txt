@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+numpy
+torch
+torchvision
+torchaudio
+opencv-python-headless
+pillow
+librosa
