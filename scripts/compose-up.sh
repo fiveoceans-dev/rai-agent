@@ -4,38 +4,40 @@ set -euo pipefail
 # Show LAN-friendly URLs so the stack is discoverable from other devices.
 
 get_default_iface() {
-  # macOS: "route get" shows the outbound interface.
-  route get default 2>/dev/null | awk '/interface:/{print $2; exit}' && return 0
-
-  # Linux: parse the primary interface from the routing table.
-  ip route show default 2>/dev/null | awk '/default/{print $5; exit}'
-}
-
-get_lan_ip() {
-  local iface="$1"
-
-  # macOS prefers ipconfig with a specific interface.
-  if [ -n "$iface" ] && command -v ipconfig >/dev/null 2>&1; then
-    ipconfig getifaddr "$iface" 2>/dev/null && return 0
+  if command -v route >/dev/null 2>&1; then
+    route -n get default 2>/dev/null | awk '/interface:/{print $2; exit}'
   fi
 
-  # Linux: try interface-specific lookup first.
-  if [ -n "$iface" ] && command -v ip >/dev/null 2>&1; then
-    ip -4 addr show dev "$iface" 2>/dev/null | awk '/inet /{gsub(/\/.*/,"",$2); print $2; exit}' && return 0
+  if command -v ip >/dev/null 2>&1; then
+    ip route show default 2>/dev/null | awk '/default/{print $5; exit}'
+  fi
+}
+
+get_all_ips() {
+  # macOS: iterate hardware ports and collect addresses.
+  if command -v networksetup >/dev/null 2>&1 && command -v ipconfig >/dev/null 2>&1; then
+    networksetup -listallhardwareports 2>/dev/null | awk '/Device:/{print $2}' \
+      | while read -r dev; do ipconfig getifaddr "$dev" 2>/dev/null; done
   fi
 
   # Generic fallbacks.
   if command -v ip >/dev/null 2>&1; then
-    ip -4 addr show scope global | awk '/inet/{gsub(/\/.*/,"",$2); print $2; exit}' && return 0
+    ip -4 addr show scope global | awk '/inet/{gsub(/\/.*/,"",$2); print $2}'
   fi
 
   if command -v ifconfig >/dev/null 2>&1; then
-    ifconfig | awk '/inet / && $2 !~ /127.0.0.1/{print $2; exit}' && return 0
+    ifconfig | awk '/inet / && $2 !~ /^127\\./{print $2}'
+  fi
+}
+
+pick_lan_ip() {
+  # Prefer the default interface if we have one.
+  local iface="$1"
+  if [ -n "$iface" ] && command -v ipconfig >/dev/null 2>&1; then
+    ipconfig getifaddr "$iface" 2>/dev/null && return 0
   fi
 
-  if command -v hostname >/dev/null 2>&1; then
-    hostname -I 2>/dev/null | awk '{print $1; exit}'
-  fi
+  get_all_ips | head -n 1
 }
 
 print_banner() {
@@ -46,7 +48,7 @@ print_banner() {
 }
 
 iface="$(get_default_iface || true)"
-lan_ip="$(get_lan_ip "${iface:-}")"
+lan_ip="$(pick_lan_ip "${iface:-}")"
 
 if [ -n "${lan_ip:-}" ]; then
   print_banner "$lan_ip"
