@@ -2,6 +2,13 @@
 
 This document outlines how to extend and maintain the system so both non-technical users and developers can work productively.
 
+## What's Implemented Today (Repo Reality Check)
+- `docker-compose.yml` runs two services: `ml-api` (FastAPI) and `web` (Next.js).
+- The backend is a demo scaffold: in-memory sources/sessions/events plus stub analysis endpoints (`/analyze/frame`, `/analyze/audio`) and a WebSocket echo (`/ws/stream`).
+- The frontend is a minimal “research console” that can create a source, start a session, poll events, and upload a file for `/analyze/frame`.
+- CV/ASR/LLM/DB/ROS2 are design targets described below (not yet implemented/wired up in Compose).
+- LAN access: `./scripts/compose-up.sh` prints your LAN URLs, but cross-device use requires setting `NEXT_PUBLIC_API_BASE` to that LAN IP and allowing the UI origin in API CORS.
+
 ## Goals and Users (Local Demo MVP)
 - **Operators (non-technical):** Simple local UI to connect a camera or upload a clip, view overlays, start/stop analysis, and review detections/conversations.
 - **Developers/Researchers:** Local-first stack (Mac M1 Max) with Dockerized services (DB, YOLO/CV, LLM proxy), hot-reload, and modular components that can later grow to distributed/ROS2.

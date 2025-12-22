@@ -3,16 +3,20 @@
 Audience: Backend/infra/ML engineers. Goal: run everything locally on a Mac M1 Max via Docker (arm64-friendly), with clear module boundaries and demo-ready defaults.
 
 ## Golden Path (Dev)
-1. `docker compose up` (builds API, CV/YOLO, optional ASR/LLM proxy, DB).
+1. `docker compose up` (builds `ml-api` + `web` from `docker-compose.yml`).
 2. API available at `http://localhost:8000`; WS at `/ws/stream`.
 3. Frontend hits API using `NEXT_PUBLIC_API_BASE`.
-4. Use sample webcam or provided MP4 to validate CV path; optional audio clip for ASR.
+4. Use a webcam or an MP4 to validate the CV path; optional audio clip for ASR.
 
 ## Services (containers)
-- **FastAPI Gateway**: orchestrates requests, WebSocket, session state, and routing to tool functions.
+Current (in `docker-compose.yml`):
+- **FastAPI Gateway (`ml-api`)**: orchestrates requests, WebSocket, session state, and routing to tool functions.
+- **Web UI (`web`)**: operator/dev console (Next.js), talks to the API via `NEXT_PUBLIC_API_BASE`.
+
+Planned / optional (described in this doc, not yet wired into `docker-compose.yml`):
 - **CV/YOLO Service**: bundled model weights; exposes a Python module (preferred) inside API container or as sidecar.
-- **ASR Service (optional)**: local Whisper/Coqui-style container; optional for demo if resources allow.
-- **LLM Proxy (optional)**: local GGUF/OpenAI-compatible bridge; can be stubbed for demo.
+- **ASR Service**: local Whisper/Coqui-style container; optional for demo if resources allow.
+- **LLM Proxy**: local GGUF/OpenAI-compatible bridge; can be stubbed for demo.
 - **DB**: Postgres (or SQLite-in-container) for sessions/events; volume-backed.
 - **Object storage**: local volume for uploads and artifacts.
 

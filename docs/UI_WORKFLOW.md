@@ -5,7 +5,7 @@ Audience: Operators and product-minded engineers. Goal: a focused local demo on 
 ## Golden Path (Operator)
 1. Launch stack: `docker compose up`.
 2. Open `http://localhost:3000`.
-3. Connect source: choose webcam or upload sample clip (provided). RTSP optional.
+3. Connect source: choose webcam or upload a sample clip. RTSP optional.
 4. Start analysis: pick profile `fast` (default). Toggle CV/ASR/LLM if available.
 5. View overlays: boxes/labels on video, live fps/latency badges.
 6. See transcripts & agent replies: live ASR feed; optional prompt box.
@@ -44,11 +44,11 @@ Audience: Operators and product-minded engineers. Goal: a focused local demo on 
 
 ## Minimal Data Model (UI)
 - `Session`: id, sourceId, profile, state (ready/running/degraded/stopped), startedAt.
-+- `Source`: id, type (webcam/usb/rtsp/upload), label, status.
+- `Source`: id, type (webcam/usb/rtsp/upload), label, status.
 - `Event`: timestamp, type (detection/transcript/agent/metric/error), payload.
 
 ## Demo Content
-- Ship one sample MP4 (720p) and one short audio clip.
+- Optionally add one sample MP4 (720p) and one short audio clip.
 - Provide a test RTSP URL placeholder and clear note if unavailable.
 
 ## Operator Checklist (before demo)
